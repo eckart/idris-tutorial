@@ -70,7 +70,7 @@ nextWeekday   sunday    =  monday
 defineMe : Day -> Day
 
 {-
-   you can (in emacs) type in C-c C-d with the cursor on the type definition
+   you can (in emacs) type in C-c C-s with the cursor on the type definition
    and Idris will supply a template definition like this
 
        defineMe : Day -> Day
@@ -102,5 +102,71 @@ defineMe : Day -> Day
 
    We now have seven different cases, all unimplemented, and thus also seven metavariables.
 
+   We will now leave this uninspiring data type an introduce another data type with
+   even less cases: Booleans!
+   Of course Idris comes already equipped with booleans, but we will roll out our
+   own private version of Booleans, to give glimpse of proofs.
+-}
+
+-- A Boolean is a data type with two cases: truth and falsehood
+data Boolean = T | F
+
+-- the _real_ data type in Idris is called `Bool` so this should not cause any name clashes
+-- (you can look up this real `Bool` in the module `Prelude.Bool`)
+
+{-
+   We can now define the usual logical connectives `and`,`or` and `not`
+
+-}
+
+and : Boolean -> Boolean -> Boolean
+and T T = T
+and _ _ = F
+
+{-
+   So `and` returns `T` if and only if both arguments are also `T`.
+
+   There are two things to notice if you are new to this syntax:
+   1. you can read the type of the function as something that takes to `Booleans` and returns a `Boolean.
+      But what it really says is: `and` is a function that takes a Boolean and returns a function that
+      takes a Boolean and returns a function. So if you supply less that the maximal number of arguments
+      you get back a function and not a Boolean.
+   2. the underscore `_` is a special pattern that matches everything. It basically says: I don't care about
+      this case.
+ 
+   The other two connectives can be defined in a similar vein:      
+-}
+or : Boolean -> Boolean -> Boolean
+or F F = T
+or _ _ = T
+
+-- well you can try to implement this yourself. Remember C-c C-s creates
+-- a template implementation (with the cursor on `not`) 
+-- and C-c C-c splits out all possible cases with the cursor on the `x`.
+not : Boolean -> Boolean 
+
+{-
+   And now we come to the first proof: Will prove that `false` or `true` is 
+   `true`. We didn't write that down explicitly in the definition of `or`
+   so it will be nice to have it proved.
+   
+   Things that need to be proved are generally called _propositions_.
+   A proposition in Idris is basically a function.
+   Notice that the return type of the propositional function is an 
+   equality, namely: `or F T = T`
+   (Aside: you can use infix notation with a function name by surrounding 
+    the function name with backticks.)
+    
+    So here is out glorious proposition.
+-}
+prfOr : F `or` T = T
+prfOr = refl
+
+{- 
+   We can see that the proposition is proved by something called `refl`
+   which is short for `reflexivity`. 
    
 -}
+
+
+
