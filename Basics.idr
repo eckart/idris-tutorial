@@ -1,19 +1,32 @@
--- * Basic Datatypes
+-- * Overview
 -- -----------------------------------------------------------------------------
 {-
+   This Lesson covers some of the basic syntax of idris.
+   While we go we will also introduce idris conecepts as we go.
+   Most of these concepts will be elaborated on in other chapters.
+   This chapter tries to give a general overview of the language
+   and the usage of its tools.
 
+   This tutorial is intended to be viewed in one of the idris editors.
+   There exists support for idris development for 
+    * [emacs](https://github.com/idris-hackers/idris-mode) 
+    * [vim](https://github.com/idris-hackers/idris-vim)
+    * [sublime](https://github.com/laughedelic/sublime-idris)
+     
+   I have used the emacs mode while writing this 
+   and will give examples for idris's interactive editing capabilities
+   using the emacs key bindings.
+
+   So let's start..
+                                                                                          -}
+module Tutorial.Basics
+
+{-
    An Idris source file usually starts with a module definition much like
    you'd expect.
    The module definition is optional and there can be at most one per file.
 
-   This paragraph also illustrates the comment syntax: lines starting with "--"
-   contain a single line comment whereas multiline comments are enclosed between "{-"
-   and "-}".
-   There exists another kind of comment which we will explaing later
- 
--}
-module Tutorial.Basics
-
+                                                                                           -}
 import Data.SortedMap                      
 
 {-
@@ -21,11 +34,15 @@ import Data.SortedMap
    a module called the *prelude* that contains a host of usefull data types
    and functions. Sometimes you may want to use names, that the prelude
    also uses which may result in a name clash.
-   In this case you can rename the import -}
+   In this case you can rename the import                                                  -}
 import Prelude.List as L
 
-{-
-   We can define a new data type like this: -}
+{- 
+   Idris has all the usual data types built in, like Integers, Reals, String, Booleans, etc.
+   I won't go into detail about this, since you can easily look them all up.
+
+   Instead, we start off with something every developer will need: defining new data types.
+   We can define a new data type like this:                                                -}
 data Day = monday | tuesday | wednesday | thursday | friday | saturday | sunday
 
 {- This defines a new data type as the sum or union of all days.
@@ -36,8 +53,7 @@ data Day = monday | tuesday | wednesday | thursday | friday | saturday | sunday
    There is another syntax for defining data types with dependent types, that is
    types that depend on values but we will come to this later
 
-   Now with our glorius data type defined we can write function that operate on days
--}
+   Now with our glorius data type defined we can write function that operate on days      -}
 
 ||| computes the next week day
 nextWeekday : Day       -> Day
@@ -64,8 +80,7 @@ nextWeekday   sunday    =  monday
    The interactive editing mode is supported (to my knowledge) by the emacs mode
    and vim mode and is also visible in the repl.
 
-   If you have a type signature using a data type like this:  
--}
+   If you have a type signature using a data type like this:                            -}
 
 defineMe : Day -> Day
 
@@ -105,8 +120,7 @@ defineMe : Day -> Day
    We will now leave this uninspiring data type an introduce another data type with
    even less cases: Booleans!
    Of course Idris comes already equipped with booleans, but we will roll out our
-   own private version of Booleans, to give glimpse of proofs.
--}
+   own private version of Booleans, to give glimpse of proofs.                            -}
 
 -- A Boolean is a data type with two cases: truth and falsehood
 data Boolean = T | F
@@ -115,10 +129,8 @@ data Boolean = T | F
 -- (you can look up this real `Bool` in the module `Prelude.Bool`)
 
 {-
-   We can now define the usual logical connectives `and`,`or` and `not`
-
--}
-
+   We can now define the usual logical connectives `and`,`or` and `not`                   
+                                                                                          -}
 and : Boolean -> Boolean -> Boolean
 and T T = T
 and _ _ = F
@@ -126,16 +138,21 @@ and _ _ = F
 {-
    So `and` returns `T` if and only if both arguments are also `T`.
 
-   There are two things to notice if you are new to this syntax:
-   1. you can read the type of the function as something that takes to `Booleans` and returns a `Boolean.
-      But what it really says is: `and` is a function that takes a Boolean and returns a function that
-      takes a Boolean and returns a function. So if you supply less that the maximal number of arguments
+   There are some things to notice if you are new to this syntax:
+    * functions consist of a _type declaration_ and one more
+      _patterns_ giving the implementation 
+    * you can read the type of this function as something that takes 
+      two `Booleans` and returns a `Boolean.
+      But what it really says is: `and` is a function that takes a Boolean and 
+      returns a function that takes a Boolean and returns a function. 
+      So if you supply less that the maximal number of arguments
       you get back a function and not a Boolean.
-   2. the underscore `_` is a special pattern that matches everything. It basically says: I don't care about
-      this case.
+    * the underscore `_` is a special pattern that matches everything. 
+      It basically says to match anything
+    * patterns are processed in the same sequence as they are written
  
    The other two connectives can be defined in a similar vein:      
--}
+                                                                                          -}
 or : Boolean -> Boolean -> Boolean
 or F F = T
 or _ _ = T
@@ -151,22 +168,347 @@ not : Boolean -> Boolean
    so it will be nice to have it proved.
    
    Things that need to be proved are generally called _propositions_.
-   A proposition in Idris is basically a function.
-   Notice that the return type of the propositional function is an 
-   equality, namely: `or F T = T`
+   Our proposition looks like this:
+                                                                                          -}
+prfOrT : F `or` T = T           -- False or True is True 
+{-
+   This looks a bit like a function declarations except that it 
+   returns an equation, namely: `F or T = T`
+   
+   And that is because a proposition is the _same_ as function. 
+
    (Aside: you can use infix notation with a function name by surrounding 
     the function name with backticks.)
     
-    So here is out glorious proposition.
--}
-prfOr : F `or` T = T
-prfOr = refl
+    If the type declaration is the proposition what will be the proof?
+    Naturally it will be the implementation of that function
+    To put it shortly proposition are types and proofs are programs.
+    
+    With our trivial proposition the proof looks like this:
+                                                                                          -}
+prfOrT = refl
 
 {- 
-   We can see that the proposition is proved by something called `refl`
-   which is short for `reflexivity`. 
+   It basically says that the left hand side and the right hand side of the 
+   equality proposition are equal. `refl` is short for `reflexivity`. 
+   (At this point, you should look up the type of `refl` for yourself (using C-c C-t). 
+   That much is easy to see since the left hand side
+   equal to `T` by the definition of `or`
    
--}
+   I now have used the word equal with to slighty different meanings that
+   will turn out make a world off difference. There was a notion of _equal by definition_
+   and of equal in the context of an equality proposition.
+   We will have more to say on this later. For now just keep in mind that 
+   we are sitting on an iceberg.
+  
+   But first some more examples. Our first proof holds absolutely. That is, there
+   is no assumption or hypothesis involved.
+   So let's now do a proof with an assumption.
+                                                                                          -}
+prAfndF : (b: Boolean) -> b `and` F = F
+
+{- 
+   This proposition says, that __for all__ `Boolean` `b` the conjunction (think: _and_) of 
+   this `b` with `F` is `F`  (which also follows directly from the definition of `and').
+   This notion of something _for all_ and then an equational something which holds
+   is something that might be familiar from math.
+   
+   You can do proof for yourself (using C-c C-s to create a template implementation
+   and then C-c C-a with the cursor on the metavariable to ask idris to solve it 
+   for you.
+   
+                                                                                          -}
+
+-- * Natural Numbers
+-- -----------------------------------------------------------------------------
+
+{- 
+   Now we come to a time honoured example: The Natural Numbers
+   
+   In this formulation the natural numbers will be a recursively generated data type.
+   We will give a definition of the natural numbers like this:
+    
+   1. `zero` is a natural number
+   2. the _successor_ of a natural number is also a natural number
+   
+   we can formulate this definition in idris like this:
+                                                                                          -}
+data N = Zero | Succ N
+
+-- this is a directive that gives idris a hint what are good
+-- names for this type. This is nice when idrid generates code for us.
+%name N n, m, i, j, k
+
+{- 
+   the nice thing about these kind of definition is, that if we want to
+   formulate functions on the natural numbers (like addition, subtraction, you name it)
+   we only need to define how a function operates on `Zero` and how it operates on
+   the successor `Succ` and we're done.
+   
+   For example, addition can be defined like this
+                                                                                          -}
+||| adds two natural nummbers
+add : N -> N -> N
+add Zero     m = m                -- 1. Zero + some number is the same number
+add (Succ k) m = Succ (add k m)  -- 2. Any non Zero number needs recursion
+
+{-
+   The second pattern off `add` peels back recursively all the
+   `Succ`s of the first number an prepends them to the second number.
+   The addition of `2 + 1` would look like this:
+   
+      add (Succ (Succ Zero)) (Succ Zero)  => (by 2.)
+      Succ (add (Succ' Zero) (Succ Zero)) => (by 2.)
+      Succ (Succ (add Zero   (Succ Zero)) => (by 1.)
+      Succ (Succ              (Succ Zero))
+   
+   and that's 3.
+   
+   So far addition works. 
+   
+   But even if it works, it seems a very cumbersome way to represent numbers!
+   I mean, how would you represent a moderately large number like 1000? It would
+   be a loooooong line of
+   
+       Succ (Succ (Succ (Succ (Succ (Succ (Succ (Succ (Succ ..... (Succ Z) ....)))))))) 
+   
+   Well, we will address this question, but first we should test that
+   our `add` functio really behaves like a decent addition.
+   And by _test_ I really mean _prove_
+   
+   Some of the properties of an addition are:
+   * `0 + n = n` 
+   * `n + 0 = n`
+   * `n + m = m + n`
+      
+   how hard can it be to prove it?
+                                                                                          -}
+
+prfLeftAddZeroNeutral : (add Zero n) = n
+prfLeftAddZeroNeutral = refl               
+
+{- 
+   Aha, its refl again.
+   But what about this:
+                                                                                          -}
+prfRightAddZeroNeutral : (add n Zero) = n
+prfRightAddZeroNeutral = ?prfRightAddZeroNeutral_rhs3
+
+{-
+   Now we're stuck. We can ask idris to solve this metavariable for
+   us (using C-c C-a) but it just does not work.
+   
+   How did this happen? We can try to look what idris expects by looking
+   at the type of the metavariable (using C-c C-t)
+   and idris gives us something like this
+   
+         n : N
+       --------------------------------------
+       prfRightAddZeroNeutral_rhs3 : add n Zero = n
+
+   this tells us we have a proof with an hypothesis (an unknown variable)
+   that idris shows us above the line.
+   
+   It seems idris does not know what to do with this generic number.
+   Why did it work for the proposition `0 + n = n` and not for `n + 0 = 0`
+   
+   The answer lies in the _definition_ of `add`.
+   We defined `add` so that when the first argument is `Zero`
+   the answer would simple be the other argument.
+   And this difference is crucial! 
+   If idris knows from the definition of a some term that something is equal
+   it can use this definition to compute expressions.
+   
+   This kind of equality - equality by definition - is called _definitional equality_ 
+   or _judgmental equality_.
+   
+   The other kind of equality arises whenever we need to prove that
+   an equality holds.
+   That is there needs to be an instance of the equality type around to _witness_
+   the equality.
+   
+   To wrap up: for `0 + n = n` idris was able to show the equality by automatically
+   using definitional equalities; for `n + 0 = 0` we need to supply a _witness_ 
+   (aka _proof_).
+   
+   So how would we go about proving `n + 0 = 0` for a completely generic `n`?
+   Well the first idea is: we really know what forms `n` can have from the definition
+   of N - it can either be `Zero` or it can be the successor of another natural 
+   number.
+   So we would like to split the proof in two cases.
+   The second idea is: suppose we know a proposition holds for the successor 
+   if it holds for the number itself __and__ it holds for `Zero` then
+   we know it holds for all natural numbers (members of the type `N`).
+   
+   This is exactly the principle of mathematical induction.
+   
+   The next task is to make a proof for the proposition `n + 0 = 0` using
+   and induction argument.
+   To use induction arguments on a data type we need to annotate it
+   with another directive `%elim`:
+                                                                                    -}
+-- I have to repeat some of the definition so we don't have a conflict
+-- with our previous definition
+-- It is idiomatic to append a prime symbol to signify a derivation of some definition
+%elim data N' = Zero' | Succ' N'
+%name N' n, m, i, j, k
+
+add' : N' -> N' -> N'
+add' Zero'     m = m                 
+add' (Succ' k) m = Succ' (add' k m)  
+
+prfRightAddZeroNeutral' : (n:N') -> (add' n Zero') = n
+-- this time I have included the unknown n' as an explicit parameter
+-- in the previous proof we did not mention n, so idris included
+-- it as an _implicit_ parameter (this will come up again later) 
+-- I had idris generate the intial match clause and already split
+-- the cases of n
+prfRightAddZeroNeutral' Zero'     = ?prfRightAddZeroNeutral'_rhs_1
+prfRightAddZeroNeutral' (Succ' n) = ?prfRightAddZeroNeutral'_rhs_2
+
+{- 
+   We will now prove these two cases. Since the first case corresponds
+   to `0 + 0 = 0` we can let idris solve it (C-c C-a). 
+   
+   The second case is of course the difficult one.
+   
+   Idris lets you prove propositions using a so called _proof script_
+   A _proof script_ is a DSL for manipulating proof using transformations
+   of the proof state that are called _tactics_.
+
+   You can do that in your editor if it supports interactive proving,
+   but I will show the steps of the proof in the repl.
+   You should do this yourself so you can see the dynamics of the interactive
+   proof solving.
+   
+   We start by telling idris we want to prove the metavariable corresponding
+   to the second case. By the way, the idris repl has tab completion  
+   
+       *Basics> :p prfRightAddZeroNeutral'_rhs_2
 
 
-
+       ----------                 Goal:                  ----------
+       {hole0} : (n : N') -> Succ' (add' n Zero') = Succ' n
+       
+   Idris lists our proof obligations, which has exactly the same type
+   as the corresponding metavariable. In the context of the prover the metavariables
+   however are called _goals_.
+   Our goal is a function type. We can _introduce_ the argument of the function
+   type as an assumption by using the `intro` tactic. 
+   
+       -Tutorial.Basics.prfRightAddZeroNeutral'_rhs_2> intro n
+       ----------              Other goals:              ----------
+       {hole0}
+       ----------              Assumptions:              ----------
+        n : N'
+       ----------                 Goal:                  ----------
+       {hole1} : Succ' (add' n Zero') = Succ' n
+       
+   This introduced a new assumption, and the remaining goal is reduced to 
+   the result type of our original hole.
+   We now try to use induction on `n`
+   
+       -Tutorial.Basics.prfRightAddZeroNeutral'_rhs_2> induction n
+       ----------              Other goals:              ----------
+       elim_Succ'0,{hole0}
+       ----------              Assumptions:              ----------
+        n : N'
+       ----------                 Goal:                  ----------
+       elim_Zero'0 : Succ' (add' Zero' Zero') = Succ' Zero'
+       
+   This splits the curent goal into two new ones by splitting the assumption
+   into its known forms. Only one goal remains in focus, so that any tactic
+   will only be used on this current goal.
+   This current goal can be simplified since `0 + 0` is known by definition to be `0`.
+   We can tell the prover to simplify the goal by using the tactic `compute`:
+   
+       -Tutorial.Basics.prfRightAddZeroNeutral'_rhs_2> compute
+       ----------              Other goals:              ----------
+       elim_Succ'0,{hole0}
+       ----------              Assumptions:              ----------
+        n : N'
+       ----------                 Goal:                  ----------
+       elim_Zero'0 : Succ' Zero' = Succ' Zero'
+       
+   The remaining obligation has exactly the form of `refl` and is
+   rather trivial. Therefore we use the tactiv `trivial`:
+   
+       -Tutorial.Basics.prfRightAddZeroNeutral'_rhs_2> trivial
+       ----------              Other goals:              ----------
+       {hole0}
+       ----------              Assumptions:              ----------
+        n : N'
+       ----------                 Goal:                  ----------
+       elim_Succ'0 : (n__0 : N') ->
+                     (Succ' (add' n__0 Zero') = Succ' n__0) ->
+                     Succ' (add' (Succ' n__0) Zero') = Succ' (Succ' n__0)
+                     
+   Woohoo, the first goal is finished an the other goal comes into focus.
+   This one looks a more complicated, by we can see that is of function type.
+   So we can move all the arguments to this function up to the assumption
+   using the `intros` tactic. This tactic is the bulk variant of the `intro`
+   tactic. It moves all argumentes to a function type up and assigns names
+   as it sees fit:
+   
+       -Tutorial.Basics.prfRightAddZeroNeutral'_rhs_2> intros
+       ----------              Other goals:              ----------
+       {hole4},elim_Succ'0,{hole0}
+       ----------              Assumptions:              ----------
+        n : N'
+        n__0 : N'
+        ihn__0 : Succ' (add' n__0 Zero') = Succ' n__0
+       ----------                 Goal:                  ----------
+       {hole5} : Succ' (add' (Succ' n__0) Zero') = Succ' (Succ' n__0)
+       
+   We can try to simplify this goal using `compute` again:
+   
+       -Tutorial.Basics.prfRightAddZeroNeutral'_rhs_2> compute
+       ----------              Other goals:              ----------
+       {hole4},elim_Succ'0,{hole0}
+       ----------              Assumptions:              ----------
+        n : N'
+        n__0 : N'
+        ihn__0 : Succ' (add' n__0 Zero') = Succ' n__0
+       ----------                 Goal:                  ----------
+       {hole5} : Succ' (Succ' (add' n__0 Zero')) = Succ' (Succ' n__0)
+       
+   Looking carefully at the current hole, we can see that the left hand side
+   contains a copy of the left hand side of the induction hypothesis `ihn__0`.
+   We can therefore rewrite our goal using the induction hypothesis using
+   the tactic `rewrite`. This will replace the matching terms of the left hand side
+   of the hypothesis in the goal with the right hand side of the hypothesis:
+   
+       -Tutorial.Basics.prfRightAddZeroNeutral'_rhs_2> rewrite ihn__0
+       ----------              Other goals:              ----------
+       {hole5},{hole4},elim_Succ'0,{hole0}
+       ----------              Assumptions:              ----------
+        n : N'
+        n__0 : N'
+        ihn__0 : Succ' (add' n__0 Zero') = Succ' n__0
+       ----------                 Goal:                  ----------
+       {hole6} : Succ' (Succ' (add' n__0 Zero')) =
+                 Succ' (Succ' (add' n__0 Zero'))
+                 
+   That again looks trivial:
+   
+       -Tutorial.Basics.prfRightAddZeroNeutral'_rhs_2> trivial
+       prfRightAddZeroNeutral'_rhs_2: No more goals.
+       
+   When there are no more goals, we can conclude the proof using the `qed` tactic:
+   
+       -Tutorial.Basics.prfRightAddZeroNeutral'_rhs_2> qed
+       Proof completed!
+       Tutorial.Basics.prfRightAddZeroNeutral'_rhs_2 = proof
+         intro n
+         induction n
+         compute
+         trivial
+         intros
+         compute
+         rewrite ihn__0
+         trivial
+   
+   Cool! We are done. Idris outputs the whole proof script for us 
+   We could now use the repl command _:addproof_ to let idris add this proof
+   for us in our module.
+                                                                                    -}
