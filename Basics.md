@@ -1,11 +1,11 @@
 
-   Overview
-   ========
+Overview
+========
 
    This Lesson covers some of the basic syntax of idris.
    While we go we will also introduce idris conecepts as we go.
    Most of these concepts will be elaborated on in other chapters.
-   This chapter tries to give a motivational overview of Idris
+   This chapter tries to give a motivational overview of haskell
    language syntax and concepts.
 
    This tutorial is intended to be viewed in one of the idris editors.
@@ -20,34 +20,34 @@
 
    So let's start..
                                                                                           
-```Idris
+```haskell
 module Tutorial.Basics
 
 ```
-   An Idris source file usually starts with a module definition much like
+   An haskell source file usually starts with a module definition much like
    you'd expect.
    The module definition is optional and there can be at most one per file.
 
                                                                                            
-```Idris
+```haskell
 import Data.SortedMap                      
 
 ```
-   A module can import other modules. Idris will also silently import
+   A module can import other modules. haskell will also silently import
    a module called the *prelude* that contains a host of usefull data types
    and functions. Sometimes you may want to use names, that the prelude
    also uses which may result in a name clash.
    In this case you can rename the import                                                  
-```Idris
+```haskell
 import Prelude.List as L
 
 ``` 
-   Idris has all the usual data types built in, like Integers, Reals, String, Booleans, etc.
+   haskell has all the usual data types built in, like Integers, Reals, String, Booleans, etc.
    I won't go into detail about this, since you can easily look them all up.
 
    Instead, we start off with something every developer will need: defining new data types.
    We can define a new data type like this:                                                
-```Idris
+```haskell
 data Day = monday | tuesday | wednesday | thursday | friday | saturday | sunday
 
 ``` This defines a new data type as the sum or union of all days.
@@ -59,7 +59,7 @@ data Day = monday | tuesday | wednesday | thursday | friday | saturday | sunday
    types that depend on values but we will come to this later
 
    Now with our glorius data type defined we can write function that operate on days      
-```Idris
+```haskell
 
 ||| computes the next week day
 nextWeekday : Day       -> Day
@@ -80,25 +80,25 @@ nextWeekday   sunday    =  monday
    We could also have used other patterns to match the possible arguments
    for a function that expects a day. This is an example of _pattern matching_.
 
-   Pattern matching is exploited heavyly in Idris.
-   Since is is known what patterns are possible you can even let Idris
+   Pattern matching is exploited heavyly in haskell.
+   Since is is known what patterns are possible you can even let haskell
    generate all the match clauses when using the interactive editing mode.
    The interactive editing mode is supported (to my knowledge) by the emacs mode
    and vim mode and is also visible in the repl.
 
    If you have a type signature using a data type like this:                            
-```Idris
+```haskell
 
 defineMe : Day -> Day
 
 ```
    you can (in emacs) type in C-c C-s with the cursor on the type definition
-   and Idris will supply a template definition like this
+   and haskell will supply a template definition like this
 
        defineMe : Day -> Day
        defineMe x = ?defineMe_rhs
 
-   Idris has choosen a default name for the variable containing the argument _x_
+   haskell has choosen a default name for the variable containing the argument _x_
    and this strange `?defineMe_rhs`. It stands (unsurprisingly) for the right hand side
    of `defineMe`. A variable beginning with a __?__ is called a _metavariable_ or a _hole_.
    Metavariables stand for something to be done.
@@ -106,9 +106,9 @@ defineMe : Day -> Day
    of the function `defineMe`. Note that unlike the previous function the argument _x_
    is a completely generic instance of `Day`. In the previous function we
    had a line for each different member of the data type `Day`.
-   We could type (or copy) all cases to this function, but Idris can help
-   you also with this: since Idris knows by the definition of the data type what
-   cases can occur you can ask Idris to provide the missing cases.
+   We could type (or copy) all cases to this function, but haskell can help
+   you also with this: since haskell knows by the definition of the data type what
+   cases can occur you can ask haskell to provide the missing cases.
    In the emacs mode you can do this by moving the cursor over the `x` and typing
    C-c C-c. This splits the variable `x`into all the possible cases. The output
    looks like this:
@@ -126,20 +126,20 @@ defineMe : Day -> Day
 
    We will now leave this uninspiring data type an introduce another data type with
    even less cases: Booleans!
-   Of course Idris comes already equipped with booleans, but we will roll out our
+   Of course haskell comes already equipped with booleans, but we will roll out our
    own private version of Booleans, to give glimpse of proofs.                            
-```Idris
+```haskell
 
 -- A Boolean is a data type with two cases: truth and falsehood
 data Boolean = T | F
 
--- the _real_ data type in Idris is called `Bool` so this should not cause any name clashes
+-- the _real_ data type in haskell is called `Bool` so this should not cause any name clashes
 -- (you can look up this real `Bool` in the module `Prelude.Bool`)
 
 ```
    We can now define the usual logical connectives `and`,`or` and `not`                   
                                                                                           
-```Idris
+```haskell
 and : Boolean -> Boolean -> Boolean
 and T T = T
 and _ _ = F
@@ -162,7 +162,7 @@ and _ _ = F
  
    The other two connectives can be defined in a similar vein:      
                                                                                           
-```Idris
+```haskell
 or : Boolean -> Boolean -> Boolean
 or F F = T
 or _ _ = T
@@ -180,7 +180,7 @@ not : Boolean -> Boolean
    Things that need to be proved are generally called _propositions_.
    Our proposition looks like this:
                                                                                           
-```Idris
+```haskell
 prfOrT : F `or` T = T           -- False or True is True 
 ```
    This looks a bit like a function declarations except that it 
@@ -197,7 +197,7 @@ prfOrT : F `or` T = T           -- False or True is True
     
     With our trivial proposition the proof looks like this:
                                                                                           
-```Idris
+```haskell
 prfOrT = refl
 
 ``` 
@@ -217,7 +217,7 @@ prfOrT = refl
    is no assumption or hypothesis involved.
    So let's now do a proof with an assumption.
                                                                                           
-```Idris
+```haskell
 prAfndF : (b: Boolean) -> b `and` F = F
 
 ``` 
@@ -230,10 +230,10 @@ prAfndF : (b: Boolean) -> b `and` F = F
    and then C-c C-a with the cursor on the metavariable to ask idris to solve it 
    for you.
    
-   -----------------------------------------------------------------------------
+-----------------------------------------------------------------------------
 
-   Natural Numbers
-   ---------------
+Natural Numbers
+---------------
 
    Now we come to a time honoured example: The Natural Numbers
    
@@ -245,7 +245,7 @@ prAfndF : (b: Boolean) -> b `and` F = F
    
    we can formulate this definition in idris like this:
                                                                                           
-```Idris
+```haskell
 data N = Zero | Succ N
 
 -- this is a directive that gives idris a hint what are good
@@ -260,7 +260,7 @@ data N = Zero | Succ N
    
    For example, addition can be defined like this
                                                                                           
-```Idris
+```haskell
 ||| adds two natural nummbers
 add : N -> N -> N
 add Zero     m = m                -- 1. Zero + some number is the same number
@@ -297,7 +297,7 @@ add (Succ k) m = Succ (add k m)  -- 2. Any non Zero number needs recursion
       
    how hard can it be to prove it?
                                                                                           
-```Idris
+```haskell
 
 prfLeftAddZeroNeutral : (add Zero n) = n
 prfLeftAddZeroNeutral = refl               
@@ -306,7 +306,7 @@ prfLeftAddZeroNeutral = refl
    Aha, its refl again.
    But what about this:
                                                                                           
-```Idris
+```haskell
 prfRightAddZeroNeutral : (add n Zero) = n
 prfRightAddZeroNeutral = ?prfRightAddZeroNeutral_rhs3
 
@@ -363,7 +363,7 @@ prfRightAddZeroNeutral = ?prfRightAddZeroNeutral_rhs3
    To use induction arguments on a data type we need to annotate it
    with another directive `%elim`:
                                                                                     
-```Idris
+```haskell
 -- I have to repeat some of the definition so we don't have a conflict
 -- with our previous definition
 -- It is idiomatic to append a prime symbol to signify a derivation of some definition
@@ -389,7 +389,7 @@ prfRightAddZeroNeutral' (Succ' n) = ?prfRightAddZeroNeutral'_rhs_2
    
    The second case is of course the difficult one.
    
-   Idris lets you prove propositions using a so called _proof script_
+   haskell lets you prove propositions using a so called _proof script_
    A _proof script_ is a DSL for manipulating proof using transformations
    of the proof state that are called _tactics_.
 
@@ -407,7 +407,7 @@ prfRightAddZeroNeutral' (Succ' n) = ?prfRightAddZeroNeutral'_rhs_2
        ----------                 Goal:                  ----------
        {hole0} : (n : N') -> Succ' (add' n Zero') = Succ' n
        
-   Idris lists our proof obligations, which has exactly the same type
+   haskell lists our proof obligations, which has exactly the same type
    as the corresponding metavariable. In the context of the prover the metavariables
    however are called _goals_.
    Our goal is a function type. We can _introduce_ the argument of the function
@@ -525,31 +525,31 @@ prfRightAddZeroNeutral' (Succ' n) = ?prfRightAddZeroNeutral'_rhs_2
          rewrite ihn__0
          trivial
    
-   Cool! We are done. Idris outputs the whole proof script for us 
+   Cool! We are done. haskell outputs the whole proof script for us 
    We could now use the repl command _:addproof_ to let idris add this proof
    for us in our module.
    
-   Idris ships with an official type of natural number called `Nat` , that lives in
+   haskell ships with an official type of natural number called `Nat` , that lives in
    `Prelude.Nat`, so you have it available automatically.
    In real idris the cases are called `Z` and `S` instead of `Zero` and `Succ`.
 
    You may wonder what happens with these incredibly nested S (S (S .... Z))) natural
-   numbers during runtime. Idris is smart enough to use "normal" integers during runtime.
+   numbers during runtime. haskell is smart enough to use "normal" integers during runtime.
    In fact one of the nice things about static typing is, that all the type information
    can go away when the type checker is finished.   
          
    In the next section we look at a familiar data type: Lists.
    
-   -----------------------------------------------------------------------------
+-----------------------------------------------------------------------------
   
-   Lists and other Lists
-   ---------------------
+Lists and other Lists
+---------------------
 
    We start of with a straight forward definition of Lists.
    (By List I mean a singly linked list)
    Our List is given by this definition:
                                                                                     
-```Idris
+```haskell
 %elim data ConsList a = 
   EmptyList | 
   Cons a (ConsList a)
@@ -584,7 +584,7 @@ prfRightAddZeroNeutral' (Succ' n) = ?prfRightAddZeroNeutral'_rhs_2
    For example we could construct (which is were the _cons_  comes from) a
    list of strings:
                                                                                     
-```Idris
+```haskell
 silly : ConsList String
 silly = Cons "And" (Cons "now" (Cons "for" (Cons "something" (Cons "completely" (Cons "different" EmptyList)))))
 
