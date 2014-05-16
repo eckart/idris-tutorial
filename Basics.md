@@ -1,4 +1,3 @@
-{-
 
    Overview
    ========
@@ -20,34 +19,38 @@
    using the emacs key bindings.
 
    So let's start..
-                                                                                          -}
+                                                                                          
+```Idris
 module Tutorial.Basics
 
-{-
+```
    An Idris source file usually starts with a module definition much like
    you'd expect.
    The module definition is optional and there can be at most one per file.
 
-                                                                                           -}
+                                                                                           
+```Idris
 import Data.SortedMap                      
 
-{-
+```
    A module can import other modules. Idris will also silently import
    a module called the *prelude* that contains a host of usefull data types
    and functions. Sometimes you may want to use names, that the prelude
    also uses which may result in a name clash.
-   In this case you can rename the import                                                  -}
+   In this case you can rename the import                                                  
+```Idris
 import Prelude.List as L
 
-{- 
+``` 
    Idris has all the usual data types built in, like Integers, Reals, String, Booleans, etc.
    I won't go into detail about this, since you can easily look them all up.
 
    Instead, we start off with something every developer will need: defining new data types.
-   We can define a new data type like this:                                                -}
+   We can define a new data type like this:                                                
+```Idris
 data Day = monday | tuesday | wednesday | thursday | friday | saturday | sunday
 
-{- This defines a new data type as the sum or union of all days.
+``` This defines a new data type as the sum or union of all days.
    It is kind of like a enumeration in other programming languages.
    An instance of this data type may be a monday __or__ a tuesday __or__ any
    of the other days.
@@ -55,7 +58,8 @@ data Day = monday | tuesday | wednesday | thursday | friday | saturday | sunday
    There is another syntax for defining data types with dependent types, that is
    types that depend on values but we will come to this later
 
-   Now with our glorius data type defined we can write function that operate on days      -}
+   Now with our glorius data type defined we can write function that operate on days      
+```Idris
 
 ||| computes the next week day
 nextWeekday : Day       -> Day
@@ -67,7 +71,7 @@ nextWeekday   friday    =  monday
 nextWeekday   saturday  =  monday
 nextWeekday   sunday    =  monday
 
-{-
+```
    This function is defined as function that takes a Day and returns another Day.
    The triple bar __|||__ is a comment intended for api documentation like
    haddock in haskell or javadocs. 
@@ -82,11 +86,12 @@ nextWeekday   sunday    =  monday
    The interactive editing mode is supported (to my knowledge) by the emacs mode
    and vim mode and is also visible in the repl.
 
-   If you have a type signature using a data type like this:                            -}
+   If you have a type signature using a data type like this:                            
+```Idris
 
 defineMe : Day -> Day
 
-{-
+```
    you can (in emacs) type in C-c C-s with the cursor on the type definition
    and Idris will supply a template definition like this
 
@@ -122,7 +127,8 @@ defineMe : Day -> Day
    We will now leave this uninspiring data type an introduce another data type with
    even less cases: Booleans!
    Of course Idris comes already equipped with booleans, but we will roll out our
-   own private version of Booleans, to give glimpse of proofs.                            -}
+   own private version of Booleans, to give glimpse of proofs.                            
+```Idris
 
 -- A Boolean is a data type with two cases: truth and falsehood
 data Boolean = T | F
@@ -130,14 +136,15 @@ data Boolean = T | F
 -- the _real_ data type in Idris is called `Bool` so this should not cause any name clashes
 -- (you can look up this real `Bool` in the module `Prelude.Bool`)
 
-{-
+```
    We can now define the usual logical connectives `and`,`or` and `not`                   
-                                                                                          -}
+                                                                                          
+```Idris
 and : Boolean -> Boolean -> Boolean
 and T T = T
 and _ _ = F
 
-{-
+```
    So `and` returns `T` if and only if both arguments are also `T`.
 
    There are some things to notice if you are new to this syntax:
@@ -154,7 +161,8 @@ and _ _ = F
     * patterns are processed in the same sequence as they are written
  
    The other two connectives can be defined in a similar vein:      
-                                                                                          -}
+                                                                                          
+```Idris
 or : Boolean -> Boolean -> Boolean
 or F F = T
 or _ _ = T
@@ -164,16 +172,17 @@ or _ _ = T
 -- and C-c C-c splits out all possible cases with the cursor on the `x`.
 not : Boolean -> Boolean 
 
-{-
+```
    And now we come to the first proof: Will prove that `false` or `true` is 
    `true`. We didn't write that down explicitly in the definition of `or`
    so it will be nice to have it proved.
    
    Things that need to be proved are generally called _propositions_.
    Our proposition looks like this:
-                                                                                          -}
+                                                                                          
+```Idris
 prfOrT : F `or` T = T           -- False or True is True 
-{-
+```
    This looks a bit like a function declarations except that it 
    returns an equation, namely: `F or T = T`
    
@@ -187,10 +196,11 @@ prfOrT : F `or` T = T           -- False or True is True
     To put it shortly proposition are types and proofs are programs.
     
     With our trivial proposition the proof looks like this:
-                                                                                          -}
+                                                                                          
+```Idris
 prfOrT = refl
 
-{- 
+``` 
    It basically says that the left hand side and the right hand side of the 
    equality proposition are equal. `refl` is short for `reflexivity`. 
    (At this point, you should look up the type of `refl` for yourself (using C-c C-t). 
@@ -206,10 +216,11 @@ prfOrT = refl
    But first some more examples. Our first proof holds absolutely. That is, there
    is no assumption or hypothesis involved.
    So let's now do a proof with an assumption.
-                                                                                          -}
+                                                                                          
+```Idris
 prAfndF : (b: Boolean) -> b `and` F = F
 
-{- 
+``` 
    This proposition says, that __for all__ `Boolean` `b` the conjunction (think: _and_) of 
    this `b` with `F` is `F`  (which also follows directly from the definition of `and').
    This notion of something _for all_ and then an equational something which holds
@@ -233,27 +244,29 @@ prAfndF : (b: Boolean) -> b `and` F = F
    2. the _successor_ of a natural number is also a natural number
    
    we can formulate this definition in idris like this:
-                                                                                          -}
+                                                                                          
+```Idris
 data N = Zero | Succ N
 
 -- this is a directive that gives idris a hint what are good
 -- names for this type. This is nice when idrid generates code for us.
 %name N n, m, i, j, k
 
-{- 
+``` 
    the nice thing about these kind of definition is, that if we want to
    formulate functions on the natural numbers (like addition, subtraction, you name it)
    we only need to define how a function operates on `Zero` and how it operates on
    the successor `Succ` and we're done.
    
    For example, addition can be defined like this
-                                                                                          -}
+                                                                                          
+```Idris
 ||| adds two natural nummbers
 add : N -> N -> N
 add Zero     m = m                -- 1. Zero + some number is the same number
 add (Succ k) m = Succ (add k m)  -- 2. Any non Zero number needs recursion
 
-{-
+```
    The second pattern off `add` peels back recursively all the
    `Succ`s of the first number an prepends them to the second number.
    The addition of `2 + 1` would look like this:
@@ -283,19 +296,21 @@ add (Succ k) m = Succ (add k m)  -- 2. Any non Zero number needs recursion
    * `n + m = m + n`
       
    how hard can it be to prove it?
-                                                                                          -}
+                                                                                          
+```Idris
 
 prfLeftAddZeroNeutral : (add Zero n) = n
 prfLeftAddZeroNeutral = refl               
 
-{- 
+``` 
    Aha, its refl again.
    But what about this:
-                                                                                          -}
+                                                                                          
+```Idris
 prfRightAddZeroNeutral : (add n Zero) = n
 prfRightAddZeroNeutral = ?prfRightAddZeroNeutral_rhs3
 
-{-
+```
    Now we're stuck. We can ask idris to solve this metavariable for
    us (using C-c C-a) but it just does not work.
    
@@ -347,7 +362,8 @@ prfRightAddZeroNeutral = ?prfRightAddZeroNeutral_rhs3
    and induction argument.
    To use induction arguments on a data type we need to annotate it
    with another directive `%elim`:
-                                                                                    -}
+                                                                                    
+```Idris
 -- I have to repeat some of the definition so we don't have a conflict
 -- with our previous definition
 -- It is idiomatic to append a prime symbol to signify a derivation of some definition
@@ -367,7 +383,7 @@ prfRightAddZeroNeutral' : (n:N') -> (add' n Zero') = n
 prfRightAddZeroNeutral' Zero'     = ?prfRightAddZeroNeutral'_rhs_1
 prfRightAddZeroNeutral' (Succ' n) = ?prfRightAddZeroNeutral'_rhs_2
 
-{- 
+``` 
    We will now prove these two cases. Since the first case corresponds
    to `0 + 0 = 0` we can let idris solve it (C-c C-a). 
    
@@ -532,14 +548,15 @@ prfRightAddZeroNeutral' (Succ' n) = ?prfRightAddZeroNeutral'_rhs_2
    We start of with a straight forward definition of Lists.
    (By List I mean a singly linked list)
    Our List is given by this definition:
-                                                                                    -}
+                                                                                    
+```Idris
 %elim data ConsList a = 
   EmptyList | 
   Cons a (ConsList a)
 
 %name ConsList xs, ys, zs
 
-{- 
+``` 
    Again we disambiguate our names from the `List`in the idris prelude. We named it
    `ConsList`, but I will refer to it as `List` to keep things short.
 
@@ -566,10 +583,11 @@ prfRightAddZeroNeutral' (Succ' n) = ?prfRightAddZeroNeutral'_rhs_2
     
    For example we could construct (which is were the _cons_  comes from) a
    list of strings:
-                                                                                    -}
+                                                                                    
+```Idris
 silly : ConsList String
 silly = Cons "And" (Cons "now" (Cons "for" (Cons "something" (Cons "completely" (Cons "different" EmptyList)))))
 
-{- 
+``` 
    Phew! Thats as bad as typing in natural numbers.
-                                                                                    -}
+                                                                                    
