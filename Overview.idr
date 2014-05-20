@@ -21,7 +21,7 @@
 
    So let's start..
                                                                                           -}
-module Tutorial.Basics
+module Tutorial.Overview
 
 {-
    An Idris source file usually starts with a module definition much like
@@ -572,4 +572,61 @@ silly = Cons "And" (Cons "now" (Cons "for" (Cons "something" (Cons "completely" 
 
 {- 
    Phew! Thats as bad as typing in natural numbers.
+   We'll see a better way do create lists later, but for now lets
+   do something to lists.
+   Since we now can create new list by _consing_ items to its, why not
+   extend that to lists themselves.
+   So we start off with a function `append` that well, appends one list to another.
+   Again we match on the definition of ConsList
                                                                                     -}
+append : ConsList a -> ConsList a -> ConsList a
+append EmptyList   ys = ys                     
+append (Cons x xs) ys = Cons x (append xs ys)
+
+{-
+   We could try the function in the reply with would yield something like this
+  
+       λΠ> append (Cons "Hello" EmptyList) (Cons "world" EmptyList)
+       Cons "Hello" (Cons "world" EmptyList) : ConsList String
+       λΠ> 
+
+   The next thing is a function that allows us to process the elemnts of a list.
+   That is, to apply a function to each element.
+   This function is generally known as `map`.
+   And that is what the functin is called in the idris library so we will
+   call our own function... ehm... `map'`. 
+                                                                                    -}
+||| map' takes a function and a List and returns a list with each element applied to the function
+map' : (a -> b) -> ConsList a -> ConsList b
+map' f EmptyList   = EmptyList
+map' f (Cons x xs) = Cons (f x) (map' f xs)
+
+{-
+   Using our function `map` we could do some manipulations:
+   
+       λΠ> map' (+1) (Cons 0 (Cons 1 EmptyList))
+       Cons 1 (Cons 2 EmptyList) : ConsList Integer
+       λΠ> map' show (Cons 0 (Cons 1 EmptyList))
+       Cons "0" (Cons "1" EmptyList) : ConsList String
+       λΠ>   
+   
+   `show` is a builtin function that converts data types to a string representation.
+   
+   So now we have `map`, we only need to have `reduce` and we have a map reduce algorithm
+   going. Except without all this clustering going, but who needs _that_ anyway.
+   
+   Reduce is also called `fold` and it comes in two flavours: peppermint and banana.
+   Wait. No, ist was: _fold left_ and _fold right_ depending on the order in which 
+   you process the list.
+   
+   A fold lets you apply a function to each element and an _accumulator_.
+   
+   We'll start with a _fold left_, called `foldl` in idris so we call it `foldLeft` instead.
+   A fold takes an initial value for the accumulator and a function that takes
+   the accumulator and an element and returns a new value for the accumulator.
+    
+-}
+foldLeft : (acc -> el -> acc) -> acc -> ConsList el -> acc
+foldLeft f acc EmptyList   = acc
+foldLeft f acc (Cons x xs) = foldLeft f (f acc x) xs
+
