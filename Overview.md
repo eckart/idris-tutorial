@@ -5,7 +5,7 @@ Overview
    This Lesson covers some of the basic syntax of idris.
    While we go we will also introduce idris conecepts as we go.
    Most of these concepts will be elaborated on in other chapters.
-   This chapter tries to give a motivational overview of haskell
+   This chapter tries to give a motivational overview of Idris
    language syntax and concepts.
 
    This tutorial is intended to be viewed in one of the idris editors.
@@ -21,10 +21,10 @@ Overview
    So let's start..
                                                                                           
 ```haskell
-module Tutorial.Basics
+module Tutorial.Overview
 
 ```
-   An haskell source file usually starts with a module definition much like
+   An Idris source file usually starts with a module definition much like
    you'd expect.
    The module definition is optional and there can be at most one per file.
 
@@ -33,16 +33,16 @@ module Tutorial.Basics
 import Data.SortedMap                      
 
 ```
-   A module can import other modules. haskell will also silently import
+   A module can import other modules. Idris will also silently import
    a module called the *prelude* that contains a host of usefull data types
    and functions. Sometimes you may want to use names, that the prelude
    also uses which may result in a name clash.
    In this case you can rename the import                                                  
-```haskell
+```Idris
 import Prelude.List as L
 
 ``` 
-   haskell has all the usual data types built in, like Integers, Reals, String, Booleans, etc.
+   Idris has all the usual data types built in, like Integers, Reals, String, Booleans, etc.
    I won't go into detail about this, since you can easily look them all up.
 
    Instead, we start off with something every developer will need: defining new data types.
@@ -80,8 +80,8 @@ nextWeekday   sunday    =  monday
    We could also have used other patterns to match the possible arguments
    for a function that expects a day. This is an example of _pattern matching_.
 
-   Pattern matching is exploited heavyly in haskell.
-   Since is is known what patterns are possible you can even let haskell
+   Pattern matching is exploited heavyly in Idris.
+   Since is is known what patterns are possible you can even let Idris
    generate all the match clauses when using the interactive editing mode.
    The interactive editing mode is supported (to my knowledge) by the emacs mode
    and vim mode and is also visible in the repl.
@@ -93,12 +93,12 @@ defineMe : Day -> Day
 
 ```
    you can (in emacs) type in C-c C-s with the cursor on the type definition
-   and haskell will supply a template definition like this
+   and Idris will supply a template definition like this
 
        defineMe : Day -> Day
        defineMe x = ?defineMe_rhs
 
-   haskell has choosen a default name for the variable containing the argument _x_
+   Idris has choosen a default name for the variable containing the argument _x_
    and this strange `?defineMe_rhs`. It stands (unsurprisingly) for the right hand side
    of `defineMe`. A variable beginning with a __?__ is called a _metavariable_ or a _hole_.
    Metavariables stand for something to be done.
@@ -106,9 +106,9 @@ defineMe : Day -> Day
    of the function `defineMe`. Note that unlike the previous function the argument _x_
    is a completely generic instance of `Day`. In the previous function we
    had a line for each different member of the data type `Day`.
-   We could type (or copy) all cases to this function, but haskell can help
-   you also with this: since haskell knows by the definition of the data type what
-   cases can occur you can ask haskell to provide the missing cases.
+   We could type (or copy) all cases to this function, but Idris can help
+   you also with this: since Idris knows by the definition of the data type what
+   cases can occur you can ask Idris to provide the missing cases.
    In the emacs mode you can do this by moving the cursor over the `x` and typing
    C-c C-c. This splits the variable `x`into all the possible cases. The output
    looks like this:
@@ -126,14 +126,14 @@ defineMe : Day -> Day
 
    We will now leave this uninspiring data type an introduce another data type with
    even less cases: Booleans!
-   Of course haskell comes already equipped with booleans, but we will roll out our
+   Of course Idris comes already equipped with booleans, but we will roll out our
    own private version of Booleans, to give glimpse of proofs.                            
 ```haskell
 
 -- A Boolean is a data type with two cases: truth and falsehood
 data Boolean = T | F
 
--- the _real_ data type in haskell is called `Bool` so this should not cause any name clashes
+-- the _real_ data type in Idris is called `Bool` so this should not cause any name clashes
 -- (you can look up this real `Bool` in the module `Prelude.Bool`)
 
 ```
@@ -218,17 +218,28 @@ prfOrT = refl
    So let's now do a proof with an assumption.
                                                                                           
 ```haskell
-prAfndF : (b: Boolean) -> b `and` F = F
+prfAndF : (b: Boolean) -> b `and` F = F
 
 ``` 
    This proposition says, that __for all__ `Boolean` `b` the conjunction (think: _and_) of 
-   this `b` with `F` is `F`  (which also follows directly from the definition of `and').
-   This notion of something _for all_ and then an equational something which holds
+   this `b` with `F` is `F` (which also follows directly from the definition of `and').
+   This notion of something _for all_ and then an equational something which holds,
    is something that might be familiar from math.
-   
+
    You can do proof for yourself (using C-c C-s to create a template implementation
    and then C-c C-a with the cursor on the metavariable to ask idris to solve it 
    for you.
+   
+   We can also do something slightly more difficult.
+   Show that any boolean conjoined with truth results in the same boolean, that is: T is
+   a neutral element for `and`: 
+                                                                                          
+```haskell
+prfAndNeutral: (b: Boolean) -> b `and` T = b   
+
+``` 
+   Prove this using the fact that a `Boolean` can only ever be a `T` or a `F`.
+                                                                                          
    
 -----------------------------------------------------------------------------
 
@@ -389,7 +400,7 @@ prfRightAddZeroNeutral' (Succ' n) = ?prfRightAddZeroNeutral'_rhs_2
    
    The second case is of course the difficult one.
    
-   haskell lets you prove propositions using a so called _proof script_
+   Idris lets you prove propositions using a so called _proof script_
    A _proof script_ is a DSL for manipulating proof using transformations
    of the proof state that are called _tactics_.
 
@@ -407,7 +418,7 @@ prfRightAddZeroNeutral' (Succ' n) = ?prfRightAddZeroNeutral'_rhs_2
        ----------                 Goal:                  ----------
        {hole0} : (n : N') -> Succ' (add' n Zero') = Succ' n
        
-   haskell lists our proof obligations, which has exactly the same type
+   Idris lists our proof obligations, which has exactly the same type
    as the corresponding metavariable. In the context of the prover the metavariables
    however are called _goals_.
    Our goal is a function type. We can _introduce_ the argument of the function
@@ -525,16 +536,16 @@ prfRightAddZeroNeutral' (Succ' n) = ?prfRightAddZeroNeutral'_rhs_2
          rewrite ihn__0
          trivial
    
-   Cool! We are done. haskell outputs the whole proof script for us 
+   Cool! We are done. Idris outputs the whole proof script for us 
    We could now use the repl command _:addproof_ to let idris add this proof
    for us in our module.
    
-   haskell ships with an official type of natural number called `Nat` , that lives in
+   Idris ships with an official type of natural number called `Nat` , that lives in
    `Prelude.Nat`, so you have it available automatically.
    In real idris the cases are called `Z` and `S` instead of `Zero` and `Succ`.
 
    You may wonder what happens with these incredibly nested S (S (S .... Z))) natural
-   numbers during runtime. haskell is smart enough to use "normal" integers during runtime.
+   numbers during runtime. Idris is smart enough to use "normal" integers during runtime.
    In fact one of the nice things about static typing is, that all the type information
    can go away when the type checker is finished.   
          
@@ -590,4 +601,166 @@ silly = Cons "And" (Cons "now" (Cons "for" (Cons "something" (Cons "completely" 
 
 ``` 
    Phew! Thats as bad as typing in natural numbers.
+   We'll see a better way do create lists later, but for now lets
+   do something to lists.
+   Since we now can create new list by _consing_ items to list, why not
+   extend that to lists themselves.
+   So we start off with a function `append` that ... well, appends one list to another.
+   Again we match on the definition of ConsList
                                                                                     
+```haskell
+append : ConsList a -> ConsList a -> ConsList a
+append EmptyList   ys = ys                     
+append (Cons x xs) ys = Cons x (append xs ys)
+
+```
+   We could try the function in the repl which would yield something like this
+  
+       λΠ> append (Cons "Hello" EmptyList) (Cons "world" EmptyList)
+       Cons "Hello" (Cons "world" EmptyList) : ConsList String
+       λΠ> 
+   
+   We can now prove the properties of `append`, namely that appending or prepending
+   empty lists does not change the original list.
+   
+   Let's do the prepend version first, since it will be easier, because
+   we will be able to _refl_ it:
+   
+                                                                                    
+```haskell
+prfPrependEmpty : (xs: ConsList a) -> append EmptyList xs = xs
+prfPrependEmpty xs   = refl  -- simple proof by refl, b/c it immediately follows from the definition
+
+```
+   One may now ask whether these simple `refl` proofs are really necessary and
+   the answer is "no". If a proof is `refl` that means we don't need to prove
+   to the compiler that a lhs and rhs of an equation are equal because they aready
+   _are_ equal or can trivially be normalised to an equality. This is
+   something that idris can do by itself. So from hereon we will not show
+   the refl proofs. 
+
+   The append version will be trickier because we will need to use 
+   the induction principle of the definition of `ConsList`.
+   We could do this like the proof for `n + 0 = n`, that is: do the complete
+   proof in the interactive prover using the `induction` tactic.
+   But instead we will show another way to get our hands on the induction
+   hypthosis.   
+                                                                                    
+```haskell
+prfAppendEmpty : (xs : ConsList a) -> append xs EmptyList = xs
+prfAppendEmpty EmptyList   = refl
+prfAppendEmpty (Cons x xs) = let inductiveHyp = prfAppendEmpty xs 
+                             in ?prfAppendEmptyStep
+```
+   the trick is to introduce a new assumption (the induction hypothesis) into the proof
+   via a `let` binding. The new assumption will be available in the proof script under
+   the name `inductiveHyp`. We introduced the induction hypothesis basically by saying:
+   "Assume the property `prfAppendEmpty` already holds for the tail of the list `xs`.
+   Oh, and let's call that assumption `inductiveHyp`"
+   That reduces our remaining obligation to showing that under this assumption the proprty
+   also holds for the entire list `Cons x xs`.
+      
+       *Overview> :p prfAppendEmptyStep 
+       ----------                 Goal:                  ----------
+       {hole0} : (a : Type) -> (x : a) -> (xs : ConsList a) -> (append xs EmptyList = xs) -> Cons x (append xs EmptyList) = Cons x xs
+       -Tutorial.Overview.prfAppendEmptyStep> intros
+       ----------              Other goals:              ----------
+       {hole3},{hole2},{hole1},{hole0}
+       ----------              Assumptions:              ----------
+        a : Type
+        x : a
+        xs : ConsList a
+        inductiveHyp : append xs EmptyList = xs
+       ----------                 Goal:                  ----------
+       {hole4} : Cons x (append xs EmptyList) = Cons x xs
+       
+   Note the induction hypothesis `inductiveHyp` in the list of assumptions.
+   It appears also in the lhs of the current goal, so we apply the `rewrite`
+   tactic to replace the expression `(append xs EmptyList)` with the rhs of the induction
+   hypothesis:
+   
+       -Tutorial.Overview.prfAppendEmptyStep> rewrite inductiveHyp 
+       ----------              Other goals:              ----------
+       {hole4},{hole3},{hole2},{hole1},{hole0}
+       ----------              Assumptions:              ----------
+        a : Type
+        x : a
+        xs : ConsList a
+        inductiveHyp : append xs EmptyList = xs
+       ----------                 Goal:                  ----------
+       {hole5} : Cons x (append xs EmptyList) = Cons x (append xs EmptyList)
+  
+   and we are done! The lhs and the rhs of the goal are already equal.
+   We again apply the `trivial` tactic and `qed` to finish the proof:
+   
+       -Tutorial.Overview.prfAppendEmptyStep> trivial
+       prfAppendEmptyStep: No more goals.
+       -Tutorial.Overview.prfAppendEmptyStep> qed
+       Proof completed!
+
+   We now had three proofs for three different data types that had the same form:
+   * `and b T = b` for booleans
+   * `n + 0 = 0` for natural numbers and 
+   * `append xs EmptyList = xs` for lists
+   
+   All three properties have the form of a binary operation on two elements of
+   a certain data type that respect a certain _neutral_ element.
+   The proofs were also similar. We showed the property for the base case(s) and
+   that it holds for an induction step. Although in the case of `Boolean` there
+   was no induction step (which is kind of a _degenerate_ case of induction).
+   
+   We will have more to say on this subject soon.   
+
+   Now that we can construct lists, we define some functions that allow us 
+   to process the elemnts of a list.
+   
+   The first function is generally known as `map`.
+   And that is what the functin is called in the idris library so we will
+   call our own function... ehm... `map'`. 
+                                                                                    
+```haskell
+||| map' takes a function and a List and returns a list with each element applied to the function
+map' : (a -> b) -> ConsList a -> ConsList b
+map' f EmptyList   = EmptyList
+map' f (Cons x xs) = Cons (f x) (map' f xs)
+
+```
+   Using our function `map` we could do some manipulations:
+   
+       λΠ> map' (+1) (Cons 0 (Cons 1 EmptyList))
+       Cons 1 (Cons 2 EmptyList) : ConsList Integer
+       λΠ> map' show (Cons 0 (Cons 1 EmptyList))
+       Cons "0" (Cons "1" EmptyList) : ConsList String
+       λΠ>   
+   
+   (`show` is a builtin function that converts data types to a string representation.)
+   
+   So now we have `map`, we only need `reduce` and then we have a _map reduce algorithm_
+   going. Except without all this clustering going, but who needs that anyway...
+   
+   Reduce is also called `fold` and it comes in two flavours: peppermint and banana.
+   Wait. No, it was: _fold left_ and _fold right_ depending on the order in which 
+   you process the list.
+   
+   A fold lets you apply a function to each element and an _accumulator_.
+   
+   We'll start with a _fold left_, called `foldl` in idris so we call it `foldLeft` instead.
+   A fold takes an initial value for the accumulator and a function that takes
+   the accumulator and an element and returns a new value for the accumulator.
+    
+
+```Idris
+foldLeft : (acc -> el -> acc) -> acc -> ConsList el -> acc
+foldLeft f acc EmptyList   = acc
+foldLeft f acc (Cons x xs) = foldLeft f (f acc x) xs
+
+-- a list of four ones : [1, 1, 1, 1] 
+fourOnes: ConsList Integer
+fourOnes = Cons 1 (Cons 1 (Cons 1 (Cons 1 EmptyList)))
+
+-- fold the list using `+` as the accumulating function and `0`
+-- a the starting value. You can try the function in the repl
+sum' : ConsList Integer -> Integer
+sum' xs = foldLeft (+) 0 xs
+
+```

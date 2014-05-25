@@ -207,17 +207,29 @@ prfOrT = refl
    is no assumption or hypothesis involved.
    So let's now do a proof with an assumption.
                                                                                           -}
-prAfndF : (b: Boolean) -> b `and` F = F
+prfAndF : (b: Boolean) -> b `and` F = F
 
 {- 
    This proposition says, that __for all__ `Boolean` `b` the conjunction (think: _and_) of 
-   this `b` with `F` is `F`  (which also follows directly from the definition of `and').
-   This notion of something _for all_ and then an equational something which holds
+   this `b` with `F` is `F` (which also follows directly from the definition of `and').
+   This notion of something _for all_ and then an equational something which holds,
    is something that might be familiar from math.
-   
+
    You can do proof for yourself (using C-c C-s to create a template implementation
    and then C-c C-a with the cursor on the metavariable to ask idris to solve it 
    for you.
+   
+   We can also do something slightly more difficult.
+   Show that any boolean conjoined with truth results in the same boolean, that is: T is
+   a neutral element for `and`: 
+                                                                                          -}
+prfAndNeutral: (b: Boolean) -> b `and` T = b   
+
+{- 
+   Prove this using the fact that a `Boolean` can only ever be a `T` or a `F`.
+                                                                                          -}
+
+{- 
    
    -----------------------------------------------------------------------------
 
@@ -574,9 +586,9 @@ silly = Cons "And" (Cons "now" (Cons "for" (Cons "something" (Cons "completely" 
    Phew! Thats as bad as typing in natural numbers.
    We'll see a better way do create lists later, but for now lets
    do something to lists.
-   Since we now can create new list by _consing_ items to its, why not
+   Since we now can create new list by _consing_ items to list, why not
    extend that to lists themselves.
-   So we start off with a function `append` that well, appends one list to another.
+   So we start off with a function `append` that ... well, appends one list to another.
    Again we match on the definition of ConsList
                                                                                     -}
 append : ConsList a -> ConsList a -> ConsList a
@@ -584,15 +596,105 @@ append EmptyList   ys = ys
 append (Cons x xs) ys = Cons x (append xs ys)
 
 {-
-   We could try the function in the reply with would yield something like this
+   We could try the function in the repl which would yield something like this
   
        λΠ> append (Cons "Hello" EmptyList) (Cons "world" EmptyList)
        Cons "Hello" (Cons "world" EmptyList) : ConsList String
        λΠ> 
+   
+   We can now prove the properties of `append`, namely that appending or prepending
+   empty lists does not change the original list.
+   
+   Let's do the prepend version first, since it will be easier, because
+   we will be able to _refl_ it:
+   
+                                                                                    -}
+prfPrependEmpty : (xs: ConsList a) -> append EmptyList xs = xs
+prfPrependEmpty xs   = refl  -- simple proof by refl, b/c it immediately follows from the definition
 
-   The next thing is a function that allows us to process the elemnts of a list.
-   That is, to apply a function to each element.
-   This function is generally known as `map`.
+{-
+   One may now ask whether these simple `refl` proofs are really necessary and
+   the answer is "no". If a proof is `refl` that means we don't need to prove
+   to the compiler that a lhs and rhs of an equation are equal because they aready
+   _are_ equal or can trivially be normalised to an equality. This is
+   something that idris can do by itself. So from hereon we will not show
+   the refl proofs. 
+
+   The append version will be trickier because we will need to use 
+   the induction principle of the definition of `ConsList`.
+   We could do this like the proof for `n + 0 = n`, that is: do the complete
+   proof in the interactive prover using the `induction` tactic.
+   But instead we will show another way to get our hands on the induction
+   hypthosis.   
+                                                                                    -}
+prfAppendEmpty : (xs : ConsList a) -> append xs EmptyList = xs
+prfAppendEmpty EmptyList   = refl
+prfAppendEmpty (Cons x xs) = let inductiveHyp = prfAppendEmpty xs 
+                             in ?prfAppendEmptyStep
+{-
+   the trick is to introduce a new assumption (the induction hypothesis) into the proof
+   via a `let` binding. The new assumption will be available in the proof script under
+   the name `inductiveHyp`. We introduced the induction hypothesis basically by saying:
+   "Assume the property `prfAppendEmpty` already holds for the tail of the list `xs`.
+   Oh, and let's call that assumption `inductiveHyp`"
+   That reduces our remaining obligation to showing that under this assumption the proprty
+   also holds for the entire list `Cons x xs`.
+      
+       *Overview> :p prfAppendEmptyStep 
+       ----------                 Goal:                  ----------
+       {hole0} : (a : Type) -> (x : a) -> (xs : ConsList a) -> (append xs EmptyList = xs) -> Cons x (append xs EmptyList) = Cons x xs
+       -Tutorial.Overview.prfAppendEmptyStep> intros
+       ----------              Other goals:              ----------
+       {hole3},{hole2},{hole1},{hole0}
+       ----------              Assumptions:              ----------
+        a : Type
+        x : a
+        xs : ConsList a
+        inductiveHyp : append xs EmptyList = xs
+       ----------                 Goal:                  ----------
+       {hole4} : Cons x (append xs EmptyList) = Cons x xs
+       
+   Note the induction hypothesis `inductiveHyp` in the list of assumptions.
+   It appears also in the lhs of the current goal, so we apply the `rewrite`
+   tactic to replace the expression `(append xs EmptyList)` with the rhs of the induction
+   hypothesis:
+   
+       -Tutorial.Overview.prfAppendEmptyStep> rewrite inductiveHyp 
+       ----------              Other goals:              ----------
+       {hole4},{hole3},{hole2},{hole1},{hole0}
+       ----------              Assumptions:              ----------
+        a : Type
+        x : a
+        xs : ConsList a
+        inductiveHyp : append xs EmptyList = xs
+       ----------                 Goal:                  ----------
+       {hole5} : Cons x (append xs EmptyList) = Cons x (append xs EmptyList)
+  
+   and we are done! The lhs and the rhs of the goal are already equal.
+   We again apply the `trivial` tactic and `qed` to finish the proof:
+   
+       -Tutorial.Overview.prfAppendEmptyStep> trivial
+       prfAppendEmptyStep: No more goals.
+       -Tutorial.Overview.prfAppendEmptyStep> qed
+       Proof completed!
+
+   We now had three proofs for three different data types that had the same form:
+   * `and b T = b` for booleans
+   * `n + 0 = 0` for natural numbers and 
+   * `append xs EmptyList = xs` for lists
+   
+   All three properties have the form of a binary operation on two elements of
+   a certain data type that respect a certain _neutral_ element.
+   The proofs were also similar. We showed the property for the base case(s) and
+   that it holds for an induction step. Although in the case of `Boolean` there
+   was no induction step (which is kind of a _degenerate_ case of induction).
+   
+   We will have more to say on this subject soon.   
+
+   Now that we can construct lists, we define some functions that allow us 
+   to process the elemnts of a list.
+   
+   The first function is generally known as `map`.
    And that is what the functin is called in the idris library so we will
    call our own function... ehm... `map'`. 
                                                                                     -}
@@ -610,13 +712,13 @@ map' f (Cons x xs) = Cons (f x) (map' f xs)
        Cons "0" (Cons "1" EmptyList) : ConsList String
        λΠ>   
    
-   `show` is a builtin function that converts data types to a string representation.
+   (`show` is a builtin function that converts data types to a string representation.)
    
-   So now we have `map`, we only need to have `reduce` and we have a map reduce algorithm
-   going. Except without all this clustering going, but who needs _that_ anyway.
+   So now we have `map`, we only need `reduce` and then we have a _map reduce algorithm_
+   going. Except without all this clustering going, but who needs that anyway...
    
    Reduce is also called `fold` and it comes in two flavours: peppermint and banana.
-   Wait. No, ist was: _fold left_ and _fold right_ depending on the order in which 
+   Wait. No, it was: _fold left_ and _fold right_ depending on the order in which 
    you process the list.
    
    A fold lets you apply a function to each element and an _accumulator_.
@@ -629,4 +731,13 @@ map' f (Cons x xs) = Cons (f x) (map' f xs)
 foldLeft : (acc -> el -> acc) -> acc -> ConsList el -> acc
 foldLeft f acc EmptyList   = acc
 foldLeft f acc (Cons x xs) = foldLeft f (f acc x) xs
+
+-- a list of four ones : [1, 1, 1, 1] 
+fourOnes: ConsList Integer
+fourOnes = Cons 1 (Cons 1 (Cons 1 (Cons 1 EmptyList)))
+
+-- fold the list using `+` as the accumulating function and `0`
+-- a the starting value. You can try the function in the repl
+sum' : ConsList Integer -> Integer
+sum' xs = foldLeft (+) 0 xs
 
