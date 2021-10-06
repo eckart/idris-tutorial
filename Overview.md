@@ -207,8 +207,8 @@ prfOrT = refl
    That much is easy to see since the left hand side
    equal to `T` by the definition of `or`
    
-   I now have used the word equal with to slighty different meanings that
-   will turn out make a world off difference. There was a notion of _equal by definition_
+   I now have used the word equal with two slighty different meanings that
+   will turn out make a world of difference. There was a notion of _equal by definition_
    and of equal in the context of an equality proposition.
    We will have more to say on this later. For now just keep in mind that 
    we are sitting on an iceberg.
@@ -274,7 +274,7 @@ data N = Zero | Succ N
 ```haskell
 ||| adds two natural nummbers
 add : N -> N -> N
-add Zero     m = m                -- 1. Zero + some number is the same number
+add Zero     m = m               -- 1. Zero + some number is the same number
 add (Succ k) m = Succ (add k m)  -- 2. Any non Zero number needs recursion
 
 ```
@@ -283,9 +283,9 @@ add (Succ k) m = Succ (add k m)  -- 2. Any non Zero number needs recursion
    The addition of `2 + 1` would look like this:
    
       add (Succ (Succ Zero)) (Succ Zero)  => (by 2.)
-      Succ (add (Succ' Zero) (Succ Zero)) => (by 2.)
+      Succ (add (Succ Zero)  (Succ Zero)) => (by 2.)
       Succ (Succ (add Zero   (Succ Zero)) => (by 1.)
-      Succ (Succ              (Succ Zero))
+      Succ (Succ             (Succ Zero))
    
    and that's 3.
    
@@ -298,7 +298,7 @@ add (Succ k) m = Succ (add k m)  -- 2. Any non Zero number needs recursion
        Succ (Succ (Succ (Succ (Succ (Succ (Succ (Succ (Succ ..... (Succ Z) ....)))))))) 
    
    Well, we will address this question, but first we should test that
-   our `add` functio really behaves like a decent addition.
+   our `add` function really behaves like a decent addition.
    And by _test_ I really mean _prove_
    
    Some of the properties of an addition are:
